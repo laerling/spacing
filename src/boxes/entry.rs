@@ -3,8 +3,8 @@ use std::fmt::{Debug, Formatter};
 
 
 pub struct Entry {
-    lhs: String,
-    rhs: String,
+    pub lhs: String,
+    pub rhs: String,
 }
 
 pub struct SideMissingError {}
