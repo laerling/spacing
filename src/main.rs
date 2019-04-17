@@ -13,7 +13,7 @@ fn main() {
 
     // load or create boxes
     let boxes = match &boxes_dir {
-        Some(dir) => Boxes::from_files(dir),
+        Some(dir) => Boxes::from_files(dir).expect("Could not open box files"),
         None => Boxes::new(),
     };
 
