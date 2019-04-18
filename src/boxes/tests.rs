@@ -1,3 +1,7 @@
+use boxes::{Boxes, BOX_DEFAULT_CAPACITY, Entry, SelectedEntry};
+use std::fs::File;
+use std::io::{Result, Write, BufRead, BufReader};
+
 #[test]
 fn new_boxes_statelessnes() {
     let b1 = Boxes::new();
