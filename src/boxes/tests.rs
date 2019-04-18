@@ -80,6 +80,20 @@ fn save_boxes() {
 fn select_random_entry_from_boxes() {
     // TODO select multiple times and check probability distribution
     panic!("TODO");
+#[test]
+fn select_entry() {
+
+    // create entry
+    let e = Entry { lhs: String::from("foo"), rhs: String::from("bar") };
+
+    // create boxes
+    let mut b = Boxes::new();
+    b.boxes[2].push(e.clone());
+
+    // select and compare
+    let selected = b.select_entry(2, 0);
+    assert_eq!(selected.lhs, e.lhs);
+    assert_eq!(selected.rhs, e.rhs);
 }
 
 #[test]
