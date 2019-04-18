@@ -1,6 +1,7 @@
 mod entry;
-use self::entry::Entry;
+mod tests;
 
+use self::entry::Entry;
 use std::fs::{read_dir, ReadDir, File};
 use std::io::{Result, BufRead, BufReader, Write};
 use std::path::Path;
@@ -127,7 +128,7 @@ impl Boxes {
      * If the entry is in the last box and was answered correctly, delete it.
      * If the entry is in the first box and was not answered correctly, don't move it.
      **/
-    pub fn move_entry(&self, e: SelectedEntry, successful: bool) {
+    pub fn move_entry(&mut self, e: SelectedEntry, successful: bool) {
 
         // panic if entry doesn't exist. This shouldn't happen because the fields of SelectedEntry 
         // are private and thus can't be changed outside of methods of Boxes.
