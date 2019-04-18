@@ -129,7 +129,7 @@ impl Boxes {
 
         // choose box
         for i in 0..5 {
-            let box_n: usize = 5 - i;
+            let box_n: usize = 4 - i;
             if r >= f64::from(box_n as u16) {
                 return box_n;
             }
