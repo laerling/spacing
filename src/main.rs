@@ -24,5 +24,8 @@ fn main() {
     }
 
     // end
-    boxes.save(&boxes_dir);
+    match &boxes_dir {
+        Some(dir) => boxes.save(dir),
+        None => boxes.save(&String::from(".")),
+    }
 }

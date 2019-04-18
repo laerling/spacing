@@ -86,18 +86,11 @@ impl Boxes {
         Ok(boxes)
     }
 
-    pub fn save(&self, dir: &Option<String>) {
-        // If dir is None, use current directory for saving
-        let dir = match dir {
-            Some(d) => Path::new(d.as_str()),
-            None => Path::new("."),
-        };
-
-        // write every box
+    pub fn save(&self, dir: &String) {
         for box_i in 0..5 {
 
             // open file
-            let filename = dir.join(box_name(box_i).as_str());
+            let filename = Path::new(dir).join(box_name(box_i).as_str());
             let mut file = File::create(filename.as_path()).expect(format!("Cannot write to file {}", filename.as_path().display()).as_str());
 
             // write contents
