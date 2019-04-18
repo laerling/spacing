@@ -1,6 +1,10 @@
+extern crate rand;
+
 mod entry;
 mod tests;
 
+use self::rand::Rng;
+use self::rand::distributions::{Distribution, LogNormal};
 use self::entry::Entry;
 use std::fs::{read_dir, ReadDir, File};
 use std::io::{Result, BufRead, BufReader, Write};
@@ -14,7 +18,9 @@ pub struct Boxes {
 }
 
 /**
- * Holds state about a selected entry so that it can be supplied to other methods of Boxes
+ * Holds state about a selected entry so that it can be supplied to other methods of Boxes.
+ * This struct only makes sense in the context of a collection of boxes, so it's implemented here, 
+ * rather than in the Entry module.
  **/
 pub struct SelectedEntry {
     lhs: String,
@@ -106,13 +112,76 @@ impl Boxes {
         }
     }
 
-    pub fn select_random_entry(&self) -> SelectedEntry {
-        // TODO select box, select entry from box
+    /**
+     * return value is 0-indexed
+     **/
+    pub fn select_random_box() -> usize {
+
+        // initialize RNG
+        let mut rng = rand::thread_rng();
+        let d = LogNormal::new(0.0, 1.0);
+
+        // don't count too high numbers towards last box
+        let mut r: f64 = 6.0;
+        while r >= 6.0 {
+            r = d.sample(&mut rng);
+        }
+
+        // choose box
+        for i in 0..5 {
+            let box_n: usize = 5 - i;
+            if r >= f64::from(box_n as u16) {
+                return box_n;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * return value is 0-indexed
+     **/
+    pub fn select_random_nonempty_box(&self) -> Option<usize> {
+
+        // check if there even are any entries to select from
+        if self.boxes.iter().all(|b| { b.is_empty() }) {
+            return None;
+        }
+
+        // select non-empty box
+        loop {
+            let box_i = Boxes::select_random_box();
+            if !self.boxes[box_i].is_empty() {
+                return Some(box_i);
+            }
+        }
+    }
+
+    pub fn select_random_entry(&self) -> Option<SelectedEntry> {
+
+        // select box
+        let box_i = match self.select_random_nonempty_box() {
+            Some(i) => i,
+            None => return None,
+        };
+
+        // select entry from box
+        let mut rng = rand::thread_rng();
+        let entry_i = rng.gen_range(0, self.boxes[box_i].len());
+
+        // return selected entry
+        Some(self.select_entry(box_i, entry_i))
+    }
+
+    /**
+     * Select an entry from a specific point in a specific box.
+     **/
+    pub fn select_entry(&self, box_i: usize, entry_i: usize) -> SelectedEntry {
+        let e = &self.boxes[box_i][entry_i];
         SelectedEntry {
-            lhs: String::from(""),
-            rhs: String::from(""),
-            box_i: 0,
-            entry_i: 0,
+            lhs: e.lhs.clone(),
+            rhs: e.rhs.clone(),
+            box_i: box_i,
+            entry_i: entry_i,
         }
     }
 

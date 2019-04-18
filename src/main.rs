@@ -1,6 +1,8 @@
-mod boxes;
-use boxes::Boxes;
+extern crate rand;
 
+mod boxes;
+
+use boxes::Boxes;
 use std::env::args;
 
 
@@ -18,8 +20,14 @@ fn main() {
     // main loop
     // TODO insert break condition
     for _ in 0..3 {
-        let entry = boxes.select_random_entry();
+        let entry = match boxes.select_random_entry() {
+            Some(e) => e,
+            None => break,
+        };
+
         // TODO ask user
+
+        // move entry according to answer of user
         boxes.move_entry(entry, true);
     }
 
