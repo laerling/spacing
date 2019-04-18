@@ -31,6 +31,7 @@ fn parse_erroneous_entry() {
     "erroneous entry".parse::<Entry>().expect_err("Erroneous entry was passed without expected error");
 }
 
+// FIXME Create /tmp/spacing__new_boxes_from_files/ first or empty it if it already exists
 #[test]
 fn new_boxes_from_files() {
 
@@ -50,6 +51,7 @@ fn new_boxes_from_files() {
     }
 }
 
+// FIXME Create /tmp/spacing__save_boxes/ first or empty it if it already exists
 #[test]
 fn save_boxes() {
 
