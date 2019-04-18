@@ -2,7 +2,7 @@ use std::str::FromStr;
 use std::fmt::{Debug, Formatter};
 
 
-#[derive(PartialEq, Eq, Debug)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Entry {
     pub lhs: String,
     pub rhs: String,
