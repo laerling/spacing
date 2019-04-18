@@ -13,6 +13,16 @@ pub struct Boxes {
 }
 
 /**
+ * Holds state about a selected entry so that it can be supplied to other methods of Boxes
+ **/
+pub struct SelectedEntry {
+    lhs: String,
+    rhs: String,
+    box_i: usize,
+    entry_i: usize,
+}
+
+/**
  * box_i is 0-indexed
  **/
 fn box_name(box_i: usize) -> String {
@@ -102,12 +112,43 @@ impl Boxes {
         }
     }
 
+    pub fn select_random_entry(&self) -> SelectedEntry {
+        // TODO select box, select entry from box
+        SelectedEntry {
+            lhs: String::from(""),
+            rhs: String::from(""),
+            box_i: 0,
+            entry_i: 0,
+        }
+    }
+
     /**
-     * Returns true if the main loop has to be exited
+     * Move an entry one box further if it's been answered correctly, else one box back.
+     * If the entry is in the last box and was answered correctly, delete it.
+     * If the entry is in the first box and was not answered correctly, don't move it.
      **/
-    pub fn round(&mut self) -> bool {
-        // TODO
-        self.boxes[3].push(Entry { lhs: String::from("foo"), rhs: String::from("bar") });
-        false // end loop
+    pub fn move_entry(&self, e: SelectedEntry, successful: bool) {
+
+        // panic if entry doesn't exist. This shouldn't happen because the fields of SelectedEntry 
+        // are private and thus can't be changed outside of methods of Boxes.
+        let expected_entry = Entry { lhs: e.lhs, rhs: e.rhs };
+        if self.boxes[e.box_i][e.entry_i] != expected_entry {
+            panic!("Expected entry does not exist");
+        }
+
+        // Call remove after push, because we'd rather be left in an erroneous state where we have 
+        // twice the same entry, than having none at all.
+        if successful && e.box_i < 4 {
+            // move forward
+            self.boxes[e.box_i+1].push(expected_entry);
+            self.boxes[e.box_i].remove(e.entry_i);
+            return;
+
+        } else if !successful && e.box_i > 0 {
+            // move backward
+            self.boxes[e.box_i-1].push(expected_entry);
+            self.boxes[e.box_i].remove(e.entry_i);
+            return;
+        }
     }
 }

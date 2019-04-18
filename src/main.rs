@@ -10,13 +10,18 @@ fn main() {
     let boxes_dir = args().skip(1).next();
 
     // load or create boxes
-    let mut boxes = match &boxes_dir {
+    let boxes = match &boxes_dir {
         Some(dir) => Boxes::from_files(dir).expect("Could not open box files"),
         None => Boxes::new(),
     };
 
     // main loop
-    while boxes.round() { }
+    // TODO insert break condition
+    for _ in 0..3 {
+        let entry = boxes.select_random_entry();
+        // TODO ask user
+        boxes.move_entry(entry, true);
+    }
 
     // end
     boxes.save(&boxes_dir);
