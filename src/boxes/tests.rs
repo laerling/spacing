@@ -76,10 +76,31 @@ fn save_boxes() {
     }
 }
 
+/**
+ * This test may take a few seconds, because we have to produce a big sample.
+ **/
 #[test]
-fn select_random_entry_from_boxes() {
-    // TODO select multiple times and check probability distribution
-    panic!("TODO");
+fn select_random_box() {
+
+    // sample and count
+    let mut count = [0; 5];
+    // using a number less than this makes the difference between count[3] and count[4] too small
+    for _ in 0..20000 {
+        let i = Boxes::select_random_box();
+        count[i] += 1;
+    }
+
+    // print counts
+    for i in 0..5 {
+        println!("{}: Seen {} times", i, count[i]);
+    }
+
+    // check that distribution is strictly ordered
+    for i in 0..4 {
+        assert!(count[i] > count[i+1]);
+    }
+}
+
 #[test]
 fn select_entry() {
 
