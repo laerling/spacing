@@ -176,7 +176,11 @@ impl Boxes {
      * Select an entry from a specific point in a specific box.
      **/
     pub fn select_entry(&self, box_i: usize, entry_i: usize) -> SelectedEntry {
+
+        // select
         let e = &self.boxes[box_i][entry_i];
+
+        // build selected entry
         SelectedEntry {
             lhs: e.lhs.clone(),
             rhs: e.rhs.clone(),
@@ -201,9 +205,11 @@ impl Boxes {
 
         // Call remove after push, because we'd rather be left in an erroneous state where we have 
         // twice the same entry, than having none at all.
-        if successful && e.box_i < 4 {
-            // move forward
-            self.boxes[e.box_i+1].push(expected_entry);
+        if successful {
+            // move forward if not already in last box
+            if e.box_i < 4 {
+                self.boxes[e.box_i+1].push(expected_entry);
+            }
             self.boxes[e.box_i].remove(e.entry_i);
             return;
 

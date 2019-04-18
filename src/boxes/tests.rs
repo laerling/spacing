@@ -97,24 +97,23 @@ fn move_entry() {
     assert_eq!(b.boxes[1].len(), 0); // and not moved to 1
     assert_eq!(b.boxes[0][0], e1);
 
-    // check right box boundary
-    let e = e2.clone();
-    b.move_entry(SelectedEntry { lhs: e.lhs, rhs: e.rhs, box_i: 4, entry_i: 0 }, true);
-    assert_eq!(b.boxes[4].len(), 1); // entry still in 4...
-    assert_eq!(b.boxes[3].len(), 0); // and not moved to 3
-    assert_eq!(b.boxes[4][0], e2);
-
-    // check moving forward
-    let e = e1.clone();
-    b.move_entry(SelectedEntry { lhs: e.lhs, rhs: e.rhs, box_i: 0, entry_i: 0 }, true);
-    assert_eq!(b.boxes[0].len(), 0); // element moved from 0...
-    assert_eq!(b.boxes[1].len(), 1); // to 1
-    assert_eq!(b.boxes[1][0], e1);
-
     // check moving backward
     let e = e2.clone();
     b.move_entry(SelectedEntry { lhs: e.lhs, rhs: e.rhs, box_i: 4, entry_i: 0 }, false);
     assert_eq!(b.boxes[4].len(), 0); // element moved from 4...
     assert_eq!(b.boxes[3].len(), 1); // to 3
     assert_eq!(b.boxes[3][0], e2);
+
+    // check moving forward
+    let e = e2.clone();
+    b.move_entry(SelectedEntry { lhs: e.lhs, rhs: e.rhs, box_i: 3, entry_i: 0 }, true);
+    assert_eq!(b.boxes[3].len(), 0); // element moved from 3...
+    assert_eq!(b.boxes[4].len(), 1); // to 4
+    assert_eq!(b.boxes[4][0], e2);
+
+    // check right box boundary
+    let e = e2.clone();
+    b.move_entry(SelectedEntry { lhs: e.lhs, rhs: e.rhs, box_i: 4, entry_i: 0 }, true);
+    assert_eq!(b.boxes[4].len(), 0); // entry deleted
+    assert_eq!(b.boxes[3].len(), 0); // and not moved to 3
 }
