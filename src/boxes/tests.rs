@@ -1,3 +1,4 @@
+#![cfg(test)]
 use boxes::{Boxes, BOX_DEFAULT_CAPACITY, Entry, SelectedEntry};
 use std::fs::File;
 use std::io::{Result, Write, BufRead, BufReader};
