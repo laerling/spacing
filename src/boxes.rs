@@ -15,6 +15,7 @@ const BOX_FILE_PREFIX: &str = "box";
 
 pub struct Boxes {
     boxes: [Vec<Entry>; 5],
+    finished: Vec<Entry>,
 }
 
 /**
@@ -38,13 +39,16 @@ fn box_name(box_i: usize) -> String {
 
 impl Boxes {
     pub fn new() -> Boxes {
-        Boxes { boxes: [
-            Vec::with_capacity(BOX_DEFAULT_CAPACITY),
-            Vec::with_capacity(BOX_DEFAULT_CAPACITY),
-            Vec::with_capacity(BOX_DEFAULT_CAPACITY),
-            Vec::with_capacity(BOX_DEFAULT_CAPACITY),
-            Vec::with_capacity(BOX_DEFAULT_CAPACITY),
-        ]}
+        Boxes {
+            boxes: [
+                Vec::with_capacity(BOX_DEFAULT_CAPACITY),
+                Vec::with_capacity(BOX_DEFAULT_CAPACITY),
+                Vec::with_capacity(BOX_DEFAULT_CAPACITY),
+                Vec::with_capacity(BOX_DEFAULT_CAPACITY),
+                Vec::with_capacity(BOX_DEFAULT_CAPACITY),
+            ],
+            finished: Vec::with_capacity(BOX_DEFAULT_CAPACITY),
+        }
     }
 
     pub fn from_files(dir: &String) -> Boxes {
@@ -114,24 +118,31 @@ impl Boxes {
         boxes
     }
 
-    pub fn save(&self, dir: &String) {
-        for box_i in 0..5 {
+    fn save_box(&self, filename: &Path, entries: &Vec<Entry>) {
 
             // open file
-            let filename = Path::new(dir).join(box_name(box_i).as_str());
-            let mut file = File::create(filename.as_path()).expect(format!("Cannot write to file {}", filename.as_path().display()).as_str());
+            let mut file = File::create(filename).expect(format!("Cannot write file '{}'", filename.display()).as_str());
 
             // write contents
-            let error_msg = format!("Cannot write to file {}", filename.as_path().display());
-            let entries = &self.boxes[box_i];
+            let error_msg = format!("Cannot write to file {}", filename.display());
             for entry_i in 0..entries.len() {
-                if entry_i != 0 {
-                    file.write(b"\n").expect(error_msg.as_str());
-                }
+                if entry_i != 0 { file.write(b"\n").expect(error_msg.as_str()); }
                 let entry = &entries[entry_i];
                 file.write(format!("{} = {}", entry.lhs, entry.rhs).as_bytes()).expect(error_msg.as_str());
             }
+    }
+
+    pub fn save(&self, dir: &String) {
+
+        // save boxes
+        for box_i in 0..5 {
+            let filename = Path::new(dir).join(box_name(box_i).as_str());
+            self.save_box(&filename.as_path(), &self.boxes[box_i]);
         }
+
+        // save finished entries
+        let filename = Path::new(dir).join("finished");
+        self.save_box(&filename.as_path(), &self.finished);
     }
 
     /**
@@ -228,8 +239,10 @@ impl Boxes {
         // Call remove after push, because we'd rather be left in an erroneous state where we have 
         // twice the same entry, than having none at all.
         if successful {
-            // move forward if not already in last box
-            if e.box_i < 4 {
+            // move forward
+            if e.box_i == 4 {
+                self.finished.push(expected_entry);
+            } else {
                 self.boxes[e.box_i+1].push(expected_entry);
             }
             self.boxes[e.box_i].remove(e.entry_i);
