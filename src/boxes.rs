@@ -23,8 +23,8 @@ pub struct Boxes {
  * rather than in the Entry module.
  **/
 pub struct SelectedEntry {
-    lhs: String,
-    rhs: String,
+    pub lhs: String,
+    pub rhs: String,
     box_i: usize,
     entry_i: usize,
 }
