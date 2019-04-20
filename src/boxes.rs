@@ -25,7 +25,7 @@ pub struct Boxes {
 pub struct SelectedEntry {
     pub lhs: String,
     pub rhs: String,
-    box_i: usize,
+    pub box_i: usize,
     entry_i: usize,
 }
 

@@ -4,7 +4,7 @@ mod boxes;
 
 use boxes::Boxes;
 use std::env::args;
-use std::io::{BufRead, BufReader, stdin};
+use std::io::{BufRead, BufReader, stdin, stdout, Write};
 
 
 fn main() {
@@ -19,8 +19,9 @@ fn main() {
     };
 
     // main loop
-    // TODO loop {
-    for _ in 0..3 {
+    loop {
+
+        // select entry
         let entry = match boxes.select_random_entry() {
             Some(e) => e,
             None => {
@@ -30,8 +31,8 @@ fn main() {
         };
 
         // choose side, i. e. select question and answer
-        let mut question: String;
-        let mut answer: String;
+        let question: String;
+        let answer: String;
         if rand::random() {
             question = entry.lhs.clone();
             answer = entry.rhs.clone();
@@ -42,11 +43,23 @@ fn main() {
 
         // ask user
         let mut user_answer = String::new();
-        print!("{} = ", question);
+        print!("Box {}: {} = ", entry.box_i+1, question);
+        stdout().flush().expect("Could not flush output");
         BufReader::new(stdin()).read_line(&mut user_answer).expect("Non-UTF-8 character read");
 
+        // end loop if input is empty
+        if user_answer.trim_end().is_empty() { break; }
+
+        // check answer
+        let correct = String::from(user_answer.trim_end()) == answer;
+        if correct {
+            println!("Correct!");
+        } else {
+            println!("Nope. {} = {}", question, answer);
+        }
+
         // move entry according to answer of user
-        boxes.move_entry(entry, String::from(user_answer.trim_end()) == answer);
+        boxes.move_entry(entry, correct);
     }
 
     // end
