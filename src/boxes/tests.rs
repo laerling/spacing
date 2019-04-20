@@ -43,7 +43,7 @@ fn new_boxes_from_files() {
     }
 
     // create boxes
-    let b = Boxes::from_files(&String::from("/tmp")).expect("Can't create boxes from files");
+    let b = Boxes::from_files(&String::from("/tmp"));
 
     // check boxes
     for i in 0..5 {
