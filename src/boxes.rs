@@ -7,7 +7,7 @@ use self::rand::Rng;
 use self::rand::distributions::{Distribution, LogNormal};
 use self::entry::Entry;
 use std::fs::{read_dir, ReadDir, File};
-use std::io::{Result, BufRead, BufReader, Write};
+use std::io::{BufRead, BufReader, Write, stdin, stdout};
 use std::path::Path;
 
 const BOX_DEFAULT_CAPACITY: usize = 10; // recommended: two-digit number for small vocabulary, three-digit number for intermediate to big vocabulary
@@ -47,7 +47,7 @@ impl Boxes {
         ]}
     }
 
-    pub fn from_files(dir: &String) -> Result<Boxes> {
+    pub fn from_files(dir: &String) -> Boxes {
 
         // find box files
         let items: ReadDir = read_dir(dir).expect(format!("Cannot read directory {}", dir).as_str());
@@ -68,7 +68,29 @@ impl Boxes {
 
         // check that all box files have been found
         if box_filenames.len() != 5 {
-            return Err(std::io::Error::new(std::io::ErrorKind::NotFound, "Not all box files found"));
+            println!("At least one box file doesn't exist in {}", dir);
+            print!("Create missing box files? (N/y)");
+            stdout().flush().expect("Could not flush output");
+            let mut input = String::new();
+            BufReader::new(stdin()).read_line(&mut input).expect("Non-UTF-8 character read");
+            if input.to_ascii_lowercase().starts_with("y") {
+
+                // create missing boxes
+                for i in 0..5 {
+                    let box_name = box_name(i);
+
+                    // skip existing boxes
+                    if box_filenames.contains(&box_name) { continue; }
+
+                    // create box
+                    File::create(Path::new(dir).join(box_name).as_path()).expect("Can't create box file");
+                }
+            } else {
+
+                // end program
+                println!("Terminating");
+                std::process::exit(0);
+            }
         }
 
         // box_filesnames was for only for checking the presence of the box files and shouldn't be
@@ -89,7 +111,7 @@ impl Boxes {
             }
         }
 
-        Ok(boxes)
+        boxes
     }
 
     pub fn save(&self, dir: &String) {

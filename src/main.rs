@@ -14,7 +14,7 @@ fn main() {
 
     // load or create boxes
     let mut boxes = match &boxes_dir {
-        Some(dir) => Boxes::from_files(dir).expect("Could not open box files"),
+        Some(dir) => Boxes::from_files(dir),
         None => Boxes::new(),
     };
 
