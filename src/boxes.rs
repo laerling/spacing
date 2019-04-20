@@ -70,13 +70,17 @@ impl Boxes {
             None
         }).collect();
 
-        // check that all box files have been found
+        // ask user whether to create missing box files
         if box_filenames.len() != 5 {
+
+            // ask user
             println!("At least one box file doesn't exist in {}", dir);
             print!("Create missing box files? (N/y)");
             stdout().flush().expect("Could not flush output");
             let mut input = String::new();
             BufReader::new(stdin()).read_line(&mut input).expect("Non-UTF-8 character read");
+
+            // create missing box files or terminate program
             if input.to_ascii_lowercase().starts_with("y") {
 
                 // create missing boxes
@@ -91,14 +95,14 @@ impl Boxes {
                 }
             } else {
 
-                // end program
+                // terminate program
                 println!("Terminating");
                 std::process::exit(0);
             }
         }
 
-        // box_filesnames was for only for checking the presence of the box files and shouldn't be
-        // used anymore, especially since there is no guarantee about the order of its elements.
+        // box_filenames was only for checking the presence of the box files and shouldn't be used
+        // anymore, especially since there is no guarantee about the order of its elements.
         std::mem::drop(box_filenames);
 
         // make boxes object
