@@ -1,6 +1,11 @@
 #![cfg(test)]
+
+extern crate rand;
+
 use boxes::{Boxes, BOX_DEFAULT_CAPACITY, Entry, SelectedEntry};
-use std::fs::File;
+use self::rand::random;
+use std::env::temp_dir;
+use std::fs::{File, create_dir};
 use std::io::{Result, Write, BufRead, BufReader};
 
 #[test]
@@ -32,18 +37,26 @@ fn parse_erroneous_entry() {
     "erroneous entry".parse::<Entry>().expect_err("Erroneous entry was passed without expected error");
 }
 
-// FIXME Create /tmp/spacing__new_boxes_from_files/ first or empty it if it already exists
 #[test]
 fn new_boxes_from_files() {
 
+    // create temporary directory
+    let dir = temp_dir().join(format!("spacing__new_boxes_from_files_{}", random::<u64>()));
+    println!("Using temporary directory {}", dir.display());
+    create_dir(&dir).expect("Cannot create temporary directory");
+
     // create files
     for i in 0..5 {
-        let mut box_file = File::create(format!("/tmp/box{}", i+1).as_str()).expect("Can't create box files for test");
+        let boxfile = dir.join(format!("box{}", i+1));
+        println!("Saving {}", boxfile.display());
+
+        // write to file
+        let mut box_file = File::create(boxfile).expect("Can't create box files for test");
         box_file.write(b"foo = bar").expect("Can't write to box files for test");
     }
 
     // create boxes
-    let b = Boxes::from_files(&String::from("/tmp"));
+    let b = Boxes::from_files(&String::from(dir.as_path().to_str().unwrap()));
 
     // check boxes
     for i in 0..5 {
@@ -52,9 +65,13 @@ fn new_boxes_from_files() {
     }
 }
 
-// FIXME Create /tmp/spacing__save_boxes/ first or empty it if it already exists
 #[test]
 fn save_boxes() {
+
+    // create temporary directory
+    let dir = temp_dir().join(format!("spacing__save_boxes_{}", random::<u64>()));
+    println!("Using temporary directory {}", dir.display());
+    create_dir(&dir).expect("Cannot create temporary directory");
 
     // create boxes
     let mut b = Boxes::new();
@@ -66,12 +83,18 @@ fn save_boxes() {
     }
 
     // save
-    b.save(&String::from("/tmp"));
+    b.save(&String::from(dir.as_path().to_str().unwrap()));
 
     // check files
     for i in 0..5 {
-        let box_file = File::open(format!("/tmp/box{}", i+1).as_str()).expect("Can't open box file");
+        let boxfile = dir.join(format!("box{}", i+1));
+        println!("Checking {}", boxfile.display());
+
+        // read lines
+        let box_file = File::open(boxfile).expect("Can't open box file");
         let lines: Vec<String> = BufReader::new(box_file).lines().collect::<Result<_>>().expect("Cannot read lines from box file");
+
+        // check
         assert_eq!(lines.len(), i+1);
         for line in lines {
             assert_eq!(line, "foo = bar");
