@@ -6,7 +6,7 @@ mod tests;
 use self::rand::Rng;
 use self::rand::distributions::{Distribution, LogNormal};
 use self::entry::Entry;
-use std::fs::{read_dir, ReadDir, File};
+use std::fs::{read_dir, ReadDir, File, OpenOptions};
 use std::io::{BufRead, BufReader, Write, stdin, stdout};
 use std::path::Path;
 
@@ -109,7 +109,10 @@ impl Boxes {
         let mut boxes = Boxes::new();
         for box_i in 0..5 {
             let filename = Path::new(dir.as_str()).join(box_name(box_i).as_str());
-            let file = File::open(filename.as_path()).expect(format!("Can't open file {}", filename.as_path().display()).as_str());
+            // open in read-write mode to check that the file is writable, so we can save back the
+            // boxes later and not loose our work.
+            let file = OpenOptions::new().read(true).write(true).open(filename.as_path())
+                .expect(format!("Can't open file {} or it's not writable", filename.as_path().display()).as_str());
 
             // parse file contents
             for line in BufReader::new(file).lines() {
