@@ -1,5 +1,3 @@
-extern crate rand;
-
 mod boxes;
 
 use boxes::Boxes;
@@ -30,18 +28,9 @@ fn main() {
             },
         };
 
-        // choose side, i. e. select question and answer
-        let question: String;
-        let answer: String;
-        if rand::random() {
-            question = entry.lhs.clone();
-            answer = entry.rhs.clone();
-        } else {
-            question = entry.rhs.clone();
-            answer = entry.lhs.clone();
-        }
-
         // ask user
+        let question = entry.lhs.clone();
+        let answer = entry.rhs.clone();
         let mut user_answer = String::new();
         print!("Box {}: {} = ", entry.box_i+1, question);
         stdout().flush().expect("Could not flush output");
@@ -55,7 +44,7 @@ fn main() {
         if correct {
             println!("Correct!");
         } else {
-            println!("Nope. {} = {}", question, answer);
+            println!("Wrong. {} = {}", question, answer);
         }
 
         // move entry according to answer of user
