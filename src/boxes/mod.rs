@@ -4,7 +4,7 @@ mod entry;
 mod tests;
 
 use self::rand::Rng;
-use self::rand::distributions::{Distribution, LogNormal};
+use self::rand::distributions::{Distribution, WeightedIndex, WeightedError};
 use self::entry::Entry;
 use std::fs::{read_dir, ReadDir, File, OpenOptions};
 use std::io::{BufRead, BufReader, Write, stdin, stdout};
@@ -155,45 +155,18 @@ impl Boxes {
     /**
      * return value is 0-indexed
      **/
-    pub fn select_random_box() -> usize {
-
-        // initialize RNG
-        let mut rng = rand::thread_rng();
-        let d = LogNormal::new(0.0, 1.0);
-
-        // don't count too high numbers towards last box
-        let mut r: f64 = 6.0;
-        while r >= 6.0 {
-            r = d.sample(&mut rng);
-        }
-
-        // choose box
-        for i in 0..5 {
-            let box_n: usize = 4 - i;
-            if r >= f64::from(box_n as u16) {
-                return box_n;
-            }
-        }
-        return 0;
-    }
-
-    /**
-     * return value is 0-indexed
-     **/
     pub fn select_random_nonempty_box(&self) -> Option<usize> {
 
-        // check if there even are any entries to select from
-        if self.boxes.iter().all(|b| { b.is_empty() }) {
-            return None;
-        }
+        // initialize probability distribution
+        let weights: Vec<_> = self.boxes.iter().map(|b| { b.len() }).collect();
+        let d = match WeightedIndex::new(&weights) {
+            Err(WeightedError::AllWeightsZero) => return None,
+            x => x,
+        }.unwrap();
 
         // select non-empty box
-        loop {
-            let box_i = Boxes::select_random_box();
-            if !self.boxes[box_i].is_empty() {
-                return Some(box_i);
-            }
-        }
+        let mut rng = rand::thread_rng();
+        return Some(d.sample(&mut rng));
     }
 
     pub fn select_random_entry(&self) -> Option<SelectedEntry> {
